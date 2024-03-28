@@ -2,7 +2,7 @@ from django.db import models
 
 
 class DroneCategory(models.Model):
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, unique=True)
 
     class Meta:
         ordering = ('name',)
@@ -12,7 +12,7 @@ class DroneCategory(models.Model):
 
 
 class Drone(models.Model):
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, unique=True)
     # We can access all the drones that belong to a specific drone category
     drone_category = models.ForeignKey(DroneCategory, on_delete=models.CASCADE, related_name='drones')
     manufacturing_date = models.DateTimeField()
@@ -34,7 +34,7 @@ class Pilot(models.Model):
         (FEMALE, 'Female'),
     )
 
-    name = models.CharField(max_length=150, blank=False, default='')
+    name = models.CharField(max_length=150, blank=False, unique=True)
     gender = models.CharField(max_length=2, choices=GENDER_CHOICES, default=MALE,)
     races_count = models.IntegerField()
     inserted_timestamp = models.DateTimeField(auto_now_add=True)
