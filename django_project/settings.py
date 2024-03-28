@@ -41,6 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # 3rd Party:
+    'rest_framework',
+
+    # Local:
+    'drones.apps.DronesConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -77,10 +84,15 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# Postgres:
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'drones',
+        'USER': 'postgres',
+        'PASSWORD': os.getenv('PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
