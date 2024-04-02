@@ -154,5 +154,15 @@ REST_FRAMEWORK = {
            'rest_framework.authentication.BasicAuthentication',
            'rest_framework.authentication.SessionAuthentication',
            ),
+       'DEFAULT_THROTTLE_CLASSES': (
+           'rest_framework.throttling.AnonRateThrottle',
+           'rest_framework.throttling.UserRateThrottle',
+           ),
+       'DEFAULT_THROTTLE_RATES': {
+           'anon': '3/hour',
+           'user': '10/hour',
+           'drones': '20/hour',   # maximum of 20 requests per hour for the drones-related views
+           'pilots': '15/hour',   # maximum of 15 requests per hour for the drones-related views
+           },
 }
 

@@ -15,6 +15,7 @@ from drones.serializers import (DroneCategorySerializer,
                                 PilotSerializer,
                                 PilotCompetitionSerializer)
 from rest_framework import permissions
+from rest_framework.throttling import ScopedRateThrottle
 from .custompermission import IsCurrentUserOwnerOrReadOnly
 
 
@@ -40,10 +41,14 @@ class DroneCategoryDetail(generics.RetrieveUpdateDestroyAPIView):
     name = 'dronecategory-detail'
 
 
+# The throttling policies for the DroneList, DroneDetail
 class DroneList(generics.ListCreateAPIView):
     queryset = Drone.objects.all()
     serializer_class = DroneSerializer
     name = 'drone-list'
+
+    throttle_scope = 'drones'
+    throttle_classes = (ScopedRateThrottle,)
 
     filter_fields = (
         'name',
@@ -71,6 +76,10 @@ class DroneDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Drone.objects.all()
     serializer_class = DroneSerializer
     name = 'drone-detail'
+
+    throttle_scope = 'drones'
+    throttle_classes = (ScopedRateThrottle,)
+
 
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsCurrentUserOwnerOrReadOnly)
 
@@ -163,3 +172,10 @@ class ApiRoot(generics.GenericAPIView):
 
 # Create a new drone:
 # http -a "admin":"123"  POST :8000/drones/ name="Python Drone" drone_category="Quadcopter" manufacturing_date="2017-08-16T02:02:00.716312Z" has_it_competed=false
+
+# To check the throttling policy:
+# Unauthenticated user:
+# for i in {1..4}; do http :8000/competitions/; done;                           -> 429 Error Too Many Requests
+# Authenticated user:
+#  for i in {1..4}; do http -a "admin":"123" :8000/competitions/; done;         -> 200 OK
+# Both the DroneList and the DroneDetail class accumulate in the same scope: 20 + 1 -> 429 Error
