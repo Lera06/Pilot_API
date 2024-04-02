@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class DroneCategory(models.Model):
@@ -18,6 +19,8 @@ class Drone(models.Model):
     manufacturing_date = models.DateTimeField()
     has_it_competed = models.BooleanField(default=False)
     inserted_timestamp = models.DateTimeField(auto_now_add=True)
+    # we can access all the drones owned by a specific user
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='drones', blank=True, null=True)
 
     class Meta:
         ordering = ('name',)

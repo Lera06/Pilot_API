@@ -14,6 +14,8 @@ from drones.serializers import (DroneCategorySerializer,
                                 DroneSerializer,
                                 PilotSerializer,
                                 PilotCompetitionSerializer)
+from rest_framework import permissions
+from .custompermission import IsCurrentUserOwnerOrReadOnly
 
 
 class DroneCategoryList(generics.ListCreateAPIView):
@@ -58,12 +60,19 @@ class DroneList(generics.ListCreateAPIView):
         'name',
         'manufacturing_date',
     )
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsCurrentUserOwnerOrReadOnly)
+
+    def perform_create(self, serializer):
+        # Whenever a new Drone is created, it will save the User associated to the request as its owner
+        serializer.save(owner=self.request.user)
 
 
 class DroneDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Drone.objects.all()
     serializer_class = DroneSerializer
     name = 'drone-detail'
+
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsCurrentUserOwnerOrReadOnly)
 
 
 class PilotList(generics.ListCreateAPIView):
@@ -128,7 +137,8 @@ class CompetitionList(generics.ListCreateAPIView):
 
     # Example:
     # http ":8000/competitions/?min_distance_in_feet=790&max_distance_in_feet=900"
-    #  http GET ":8000/competitions/?from_achievement_date=2017-10-18&to_achievement_date=2017-10-22&min_distance_in_feet=700&max_distance_in_feet=900"
+    # http GET ":8000/competitions/?from_achievement_date=2017-10-18&to_achievement_date=2017-10-22&min_distance_in_feet=700&max_distance_in_feet=900"
+    # http GET ":8000/competitions/?from_achievement_date=2017-10-18&to_achievement_date=2017-10-22&min_distance_in_feet=2000"
 
 
 class CompetitionDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -150,3 +160,6 @@ class ApiRoot(generics.GenericAPIView):
             }
         )
 
+
+# Create a new drone:
+# http -a "admin":"123"  POST :8000/drones/ name="Python Drone" drone_category="Quadcopter" manufacturing_date="2017-08-16T02:02:00.716312Z" has_it_competed=false
